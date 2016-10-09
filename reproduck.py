@@ -88,11 +88,11 @@ def generateImages(config):
     string_elements = [e.to_html() for e in styled_elements]
     html = generate_html(string_elements)
 
-    with open(config['html_output'], "w") as text_file:
-        text_file.write(html)
+    with open(config['html_output'], "w") as html_file:
+        html_file.write(html)
 
     # driver = webdriver.Chrome(config['webdriver_path'])
-    driver = webdriver.PhantomJS()   
+    driver = webdriver.PhantomJS()
     driver.get(config['html_path'])
     driver.save_screenshot('screenshot.png')
     elements = driver.find_elements_by_tag_name(config['tag_name'])
@@ -109,7 +109,6 @@ def generateImages(config):
 def main():
     with open('config.json') as config_file:
         config = json.load(config_file)
-        print(config['tag_name'])
     generateImages(config)
 
 
