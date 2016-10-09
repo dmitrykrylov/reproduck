@@ -1,0 +1,25 @@
+{
+    "tag_name": "button",
+    "attributes": "",
+    "content": "OK",
+    "styles": [
+        {
+            "name": "width",
+            "min": 10,
+            "max": 100,
+            "increment": 5,
+            "measure_unit": "px"
+        },
+        {
+            "name": "border-width",
+            "min": 1,
+            "max": 30,
+            "increment": 1,
+            "measure_unit": "px"
+        }
+    ],
+    "webdriver_path": "/home/dmitriy/workspace/chromedriver",
+    "html_output": "output.html",
+    "html_path": "file:////home/dmitriy/workspace/reproduck/output.html",
+    "image_dir": ""
+}
