@@ -5,6 +5,7 @@
     "styles": [
         {
             "name": "width",
+            "type": "number",
             "min": 10,
             "max": 100,
             "increment": 5,
@@ -12,10 +13,20 @@
         },
         {
             "name": "border-width",
+            "type": "number",
             "min": 1,
             "max": 30,
             "increment": 1,
             "measure_unit": "px"
+        },
+        {
+            "name": "border-color",
+            "type": "color"
+        },
+        {
+            "name": "border",
+            "type": "string",
+            "values": ["solid", "dashed"]
         }
     ],
     "webdriver_path": "/home/dmitriy/workspace/chromedriver",

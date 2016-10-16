@@ -1,7 +1,19 @@
 import json
 import copy
+import logging
 from selenium import webdriver
 from PIL import Image
+from colors import COLORS
+
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
+
+
+def yield_chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 
 class Element:
@@ -26,16 +38,32 @@ class Element:
 
         return elements
 
+    def generate_possible_values(self, prop):
+        values = []
+
+        if prop['type'] == 'number':
+
+            n = round((prop['max'] - prop['min']) / prop['increment'])
+            for i in range(n):
+                prop_value = prop['min'] + i * prop['increment']
+                prop_value_string = str(prop_value) + prop['measure_unit']
+                values.append(prop_value_string)
+
+        elif prop['type'] == 'string':
+            values = prop['values']
+
+        elif prop['type'] == 'color':
+            values = COLORS
+
+        return values
+
     def multiply_by_style_prop(self, prop):
         elements = []
-        n = round((prop['max'] - prop['min']) / prop['increment'])
+        values = self.generate_possible_values(prop)
 
-        for i in range(n):
-            prop_value = prop['min'] + i * prop['increment']
-            prop_value_string = str(prop_value) + prop['measure_unit']
-
+        for value in values:
             element = copy.deepcopy(self)
-            element.add_style_property(prop['name'], prop_value_string)
+            element.add_style_property(prop['name'], value)
             elements.append(element)
 
         return elements
@@ -86,24 +114,29 @@ def generateImages(config):
 
     styled_elements = base_element.multiply_by_styles(config['styles'])
     string_elements = [e.to_html() for e in styled_elements]
-    html = generate_html(string_elements)
+    logger.info('%s elements have been created' % len(string_elements))
 
-    with open(config['html_output'], "w") as html_file:
-        html_file.write(html)
+    chunks = yield_chunks(string_elements, 1000)
 
-    # driver = webdriver.Chrome(config['webdriver_path'])
-    driver = webdriver.PhantomJS()
-    driver.get(config['html_path'])
-    driver.save_screenshot('screenshot.png')
-    elements = driver.find_elements_by_tag_name(config['tag_name'])
+    for i, chunk in enumerate(chunks):
+        html = generate_html(chunk)
 
-    screenshot = Image.open('screenshot.png')
+        with open(config['html_output'], "w") as html_file:
+            html_file.write(html)
 
-    for i, element in enumerate(elements):
-        image = getElementImage(element, screenshot)
-        image.save('image_%s.png' % (i))
+        # driver = webdriver.Chrome(config['webdriver_path'])
+        driver = webdriver.PhantomJS()
+        driver.get(config['html_path'])
+        driver.save_screenshot('output/screenshot.png')
+        elements = driver.find_elements_by_tag_name(config['tag_name'])
 
-    driver.quit()
+        screenshot = Image.open('output/screenshot.png')
+
+        for k, element in enumerate(elements):
+            image = getElementImage(element, screenshot)
+            image.save('output/image_%s_%s.png' % (i, k))
+
+        driver.quit()
 
 
 def main():
